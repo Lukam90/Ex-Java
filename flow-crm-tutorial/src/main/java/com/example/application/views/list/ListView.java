@@ -1,5 +1,7 @@
 package com.example.application.views.list;
 
+import java.util.Collections;
+
 import com.example.application.data.Contact;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -15,6 +17,7 @@ import com.vaadin.flow.router.Route;
 public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
     TextField filterText = new TextField();
+    ContactForm form;
 
     public ListView() {
         addClassName("list-view");
@@ -31,6 +34,11 @@ public class ListView extends VerticalLayout {
         grid.addColumn(contact -> contact.getStatus().getName()).setHeader("Status");
         grid.addColumn(contact -> contact.getCompany().getName()).setHeader("Company");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+    }
+
+    private void configureForm() {
+        form = new ContactForm(Collections.emptyList(), Collections.emptyList());
+        form.setWidth("25em");
     }
 
     private HorizontalLayout getToolbar() {
