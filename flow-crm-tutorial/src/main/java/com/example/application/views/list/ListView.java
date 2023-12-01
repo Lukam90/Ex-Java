@@ -3,6 +3,7 @@ package com.example.application.views.list;
 import java.util.Collections;
 
 import com.example.application.data.Contact;
+import com.example.application.services.CrmService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,15 +17,23 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Contacts | Vaadin CRM")
 public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
+
     TextField filterText = new TextField();
+    
     ContactForm form;
 
-    public ListView() {
+    CrmService service;
+
+    public ListView(CrmService service) {
+        this.service = service;
+
         addClassName("list-view");
         setSizeFull();
         configureGrid();
+        configureForm();
 
         add(getToolbar(), grid);
+        updateList();
     }
 
     private void configureGrid() {
@@ -52,4 +61,8 @@ public class ListView extends VerticalLayout {
         toolbar.addClassName("toolbar");
         return toolbar;
     } 
+
+    private void updateList() {
+        grid.setItems(service.findAllContacts(filterText.getValue()));
+    }
 }
