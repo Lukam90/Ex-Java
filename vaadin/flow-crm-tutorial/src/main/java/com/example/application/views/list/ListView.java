@@ -1,9 +1,8 @@
 package com.example.application.views.list;
 
-import java.util.Collections;
-
 import com.example.application.data.Contact;
 import com.example.application.services.CrmService;
+import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -14,7 +13,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "")
+@Route(value = "", layout = MainLayout.class)
 @PageTitle("Contacts | Vaadin CRM")
 public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
@@ -35,6 +34,7 @@ public class ListView extends VerticalLayout {
 
         add(getToolbar(), getContent());
         updateList();
+        closeEditor();
     }
 
     private void configureGrid() {
@@ -44,10 +44,16 @@ public class ListView extends VerticalLayout {
         grid.addColumn(contact -> contact.getStatus().getName()).setHeader("Status");
         grid.addColumn(contact -> contact.getCompany().getName()).setHeader("Company");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect()
+            .addValueChangeListener(
+                event -> editContact(event.getValue()
+            )
+        );
     }
 
     private void configureForm() {
-        form = new ContactForm(Collections.emptyList(), Collections.emptyList());
+        form = new ContactForm(service.findAllCompanies(), service.findAllStatuses());
         form.setWidth("25em");
     }
 
@@ -65,12 +71,14 @@ public class ListView extends VerticalLayout {
         filterText.setPlaceholder("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
+        filterText.addValueChangeListener(e -> updateList());
 
         Button addContactButton = new Button("Add contact");
         addContactButton.addClickListener(click -> addContact());
 
         var toolbar = new HorizontalLayout(filterText, addContactButton);
         toolbar.addClassName("toolbar");
+
         return toolbar;
     }
 
